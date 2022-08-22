@@ -16,9 +16,7 @@ jobs:
     environment:
       name: staging
     steps:
-      - uses: actions/checkout@v3.0.2
-        with:
-          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
+      - uses: actions/checkout@v3
       - uses: hashicorp/setup-terraform@v2
         with:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
@@ -30,21 +28,11 @@ jobs:
         id: init
         run: terraform init
         continue-on-error: true
-      - name: Select Staging Workspace
-        run: terraform workspace select staging
-        continue-on-error: true
-      - id: check_workspace
-        run: terraform workspace show
-      - id: output_workspace
-        run: echo ::set-output name=key::${{ steps.check_workspace.outputs['stdout'] }}
-      - name: Create Staging workspace
-        run: terraform workspace new staging
-        if: ${{ steps.output_workspace.outputs.key != 'staging' }}
       - name: Terraform plan
         id: plan
         run: terraform plan -no-color
       - name: Update Pull Request
-        uses: actions/github-script@6
+        uses: actions/github-script@v6
         if: github.event_name == 'pull_request'
         env:
           PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
