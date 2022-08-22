@@ -47,11 +47,11 @@ resource "aws_lb_target_group" "orderful" {
   target_type = var.target_type
 
   health_check {
-    path                = var.target_group_health_check.path
-    protocol            = var.target_group_health_check.protocol
-    healthy_threshold   = var.target_group_health_check.healthy_threshold
-    unhealthy_threshold = var.target_group_health_check.unhealthy_threshold
-    interval            = var.target_group_health_check.interval
+    path                = var.target_group_health_checks.path
+    protocol            = var.target_group_health_checks.protocol
+    healthy_threshold   = var.target_group_health_checks.healthy_threshold
+    unhealthy_threshold = var.target_group_health_checks.unhealthy_threshold
+    interval            = var.target_group_health_checks.interval
   }
 }
 
