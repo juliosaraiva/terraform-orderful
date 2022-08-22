@@ -2,6 +2,8 @@ name: CI - Development
 
 on:
   pull_request:
+    types:
+      - synchronize
     branches:
       - dev
   workflow_dispatch:
@@ -15,13 +17,13 @@ env:
   TERRAFORM_VERSION: 1.2.7
   AWS_DEFAULT_REGION: us-east-1
   TF_WORKSPACE: ${{ secrets.TF_WORKSPACE }}
+  TF_CLOUD_ORGANIZATION: ${{ secrets.TF_CLOUD_ORGANIZATION }}
   TF_IN_AUTOMATION: true
 jobs:
   terraform_check:
     name: Check for development
     runs-on: ubuntu-latest
-    timeout-minutes: 5
-
+    timeout-minutes: 10
     environment:
       name: development
     steps:
@@ -37,6 +39,9 @@ jobs:
         id: init
         run: terraform init
         continue-on-error: true
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate -no-color
       - name: Terraform plan
         id: plan
         run: terraform plan -no-color
@@ -49,29 +54,31 @@ jobs:
           script: |
             const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
             #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
-            #### Terraform Validation 🤖${{ steps.validate.outputs.stdout }}
             #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+            #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
 
             <details><summary>Show Plan</summary>
 
-            \`\`\`${process.env.PLAN}\`\`\`
+            \`\`\`\n
+            ${process.env.PLAN}
+            \`\`\`
 
             </details>
 
-            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ env.tf_actions_working_dir }}\`, Workflow: \`${{ github.workflow }}\`*`;
-              
-            github.issues.createComment({
+            *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+
+            github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: output
             })
   terraform_deploy:
-    if: github.event_name == 'workflow_dispatch' && github.event.inputs.cmd == 'apply'
+    if: github.event_name == 'pull_request'
     needs: terraform_check
     name: Terraform Apply
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 30
     environment:
       name: development
     steps:
@@ -83,31 +90,38 @@ jobs:
         id: init
         run: terraform init
       - name: Terraform Apply
-        run: terraform apply -auto-approve
+        id: apply
+        run: terraform apply -auto-approve -no-color
       - uses: actions/github-script@v6
         env:
-          PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+          APPLY: "terraform\n${{ steps.apply.outputs.stdout }}"
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
-            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
-            #### Terraform Validation 🤖${{ steps.validate.outputs.stdout }}
-            #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+            const output = `#### Terraform Apply 📖\`${{ steps.apply.outcome }}\`
 
-            <details><summary>Show Plan</summary>
+            <details><summary>Show Apply</summary>
 
-            \`\`\`${process.env.PLAN}\`\`\`
+            \`\`\`\n
+            ${process.env.APPLY}
+            \`\`\`
 
             </details>
 
-            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ env.tf_actions_working_dir }}\`, Workflow: \`${{ github.workflow }}\`*`;
+            *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
   terraform_destroy:
-    if: github.event_name == 'workflow_dispatch' && github.event.inputs.cmd == 'destroy'
-    needs: terraform_check
+    if: github.event_name == 'pull_request'
+    needs: terraform_deploy
     name: Terraform Destroy
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 30
     environment:
       name: development
     steps:
@@ -119,22 +133,29 @@ jobs:
         id: init
         run: terraform init
       - name: Terraform Destroy
-        run: terraform destroy -auto-approve
+        id: destroy
+        run: terraform destroy -auto-approve -no-color
       - uses: actions/github-script@v6
         env:
-          PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+          DESTROY: "terraform\n${{ steps.destroy.outputs.stdout }}"
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
-            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
-            #### Terraform Validation 🤖${{ steps.validate.outputs.stdout }}
-            #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+            const output = `#### Terraform Destroy 📖\`${{ steps.destroy.outcome }}\`
 
-            <details><summary>Show Plan</summary>
+            <details><summary>Show Destroy</summary>
 
-            \`\`\`${process.env.PLAN}\`\`\`
+            \`\`\`\n
+            ${process.env.DESTROY}
+            \`\`\`
 
             </details>
 
-            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ env.tf_actions_working_dir }}\`, Workflow: \`${{ github.workflow }}\`*`;
+            *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
