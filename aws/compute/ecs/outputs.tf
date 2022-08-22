@@ -8,15 +8,11 @@ output "cluster_id" {
   value       = aws_ecs_cluster.orderful.id
 }
 
-output "lb_target_group_arn" {
+output "alb_target_group_arn" {
   value = aws_lb_target_group.orderful.arn
 }
 
-output "autoscaling_arn" {
-  value = aws_autoscaling_group.orderful.arn
-}
-
 output "cloudfront_endpoint_url" {
-  description = "Cloudfront Endpoint URL"
+  description = "Cloudfront endpoint URL"
   value       = aws_cloudfront_distribution.orderful.domain_name
 }

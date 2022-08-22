@@ -1,13 +1,14 @@
 // Required
 variable "private_subnet_ids" {
-  type = list(string)
+  description = "List of private subnets for ECS"
+  type        = list(string)
 }
 variable "public_subnet_ids" {
-  description = "Public Subnet ID"
+  description = "List of public subnets for ALB"
   type        = list(string)
 }
 variable "ssh_public_key" {
-  description = "You must specify your SSH Public key"
+  description = "SSH Public Key"
   type        = string
 }
 variable "vpc_id" {
@@ -17,16 +18,10 @@ variable "vpc_id" {
 // Required
 
 variable "container_port" {
-  description = "Container Port to Listen On"
+  description = "Container Port to Listening On"
   type        = number
   default     = 4545
 }
-variable "custom_security_groups" {
-  description = "Customized Security Groups to attach into the instance."
-  type        = list(string)
-  default     = []
-}
-
 variable "enable_container_insights" {
   description = "Enable or Disable Container Insights"
   type        = string
@@ -47,12 +42,12 @@ variable "launch_type" {
   type        = string
   default     = "EC2"
 }
-variable "lb_internal" {
+variable "load_balancer_internal" {
   description = "If true, the LB will be internal."
   type        = bool
   default     = false
 }
-variable "lb_type" {
+variable "load_balancer_type" {
   description = "The type of load balancer to create. Possible values are application, gateway, or network. The default value is application."
   type        = string
   default     = "application"
@@ -119,7 +114,7 @@ variable "user_data" {
   type        = list(string)
   default     = null
 }
-variable "target_group_health_check" {
+variable "target_group_health_checks" {
   description = "Health Check Configuration for Target group."
   type = object({
     path                = string
