@@ -52,7 +52,7 @@ variable "load_balancer_type" {
   type        = string
   default     = "application"
   validation {
-    condition     = contains(["application", "gateway", "network"], var.lb_type)
+    condition     = contains(["application", "gateway", "network"], var.load_balancer_type)
     error_message = "Valid values for load balancer type are application, gateway or network."
   }
 }
