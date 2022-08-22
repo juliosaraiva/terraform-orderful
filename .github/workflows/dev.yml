@@ -1,0 +1,74 @@
+name: Development
+
+on:
+  pull_request:
+    branches:
+      - dev
+
+env:
+  TERRAFORM_VERSION: 1.2.7
+  AWS_DEFAULT_REGION: us-east-1
+jobs:
+  terraform:
+    name: Terraform
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment:
+      name: staging
+    steps:
+      - uses: actions/checkout@v3.0.2
+        with:
+          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
+      - uses: hashicorp/setup-terraform@v2
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+      - name: Terraform fmt
+        id: fmt
+        run: terraform fmt -check
+        continue-on-error: true
+      - name: Terraform Init
+        id: init
+        run: terraform init
+        continue-on-error: true
+      - name: Select Staging Workspace
+        run: terraform workspace select staging
+        continue-on-error: true
+      - id: check_workspace
+        run: terraform workspace show
+      - id: output_workspace
+        run: echo ::set-output name=key::${{ steps.check_workspace.outputs['stdout'] }}
+      - name: Create Staging workspace
+        run: terraform workspace new staging
+        if: ${{ steps.output_workspace.outputs.key != 'staging' }}
+      - name: Terraform plan
+        id: plan
+        run: terraform plan -no-color
+      - name: Update Pull Request
+        uses: actions/github-script@6
+        if: github.event_name == 'pull_request'
+        env:
+          PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+            #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+            #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
+
+            <details><summary>Show Plan</summary>
+
+            \`\`\`\n
+            ${process.env.PLAN}
+            \`\`\`
+
+            </details>
+
+            *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
