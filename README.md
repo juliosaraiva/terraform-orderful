@@ -1,3 +1,8 @@
+# AWS Orderful ECS Project
+
+# Architecture
+![alt AWS ECS Architecture](./images/IT%20services.svg)
+
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
@@ -16,12 +21,10 @@
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_ecs"></a> [ecs](#module\_ecs) | ./aws/compute/ecs | n/a |
-| <a name="module_launch_template"></a> [launch\_template](#module\_launch\_template) | ./aws/compute/launch_template | n/a |
-| <a name="module_security_groups"></a> [security\_groups](#module\_security\_groups) | ./aws/network/security_groups | n/a |
-| <a name="module_subnet-us-east-1a"></a> [subnet-us-east-1a](#module\_subnet-us-east-1a) | ./aws/network/subnets | n/a |
-| <a name="module_subnet-us-east-1b"></a> [subnet-us-east-1b](#module\_subnet-us-east-1b) | ./aws/network/subnets | n/a |
-| <a name="module_vpc"></a> [vpc](#module\_vpc) | ./aws/network/vpc | n/a |
+| <a name="module_ecs"></a> [ecs](#module\_ecs) | ./aws/compute/ecs | 0.0.1 |
+| <a name="module_subnet-us-east-1a"></a> [subnet-us-east-1a](#module\_subnet-us-east-1a) | ./aws/network/subnets | 0.0.1 |
+| <a name="module_subnet-us-east-1b"></a> [subnet-us-east-1b](#module\_subnet-us-east-1b) | ./aws/network/subnets | 0.0.1 |
+| <a name="module_vpc"></a> [vpc](#module\_vpc) | ./aws/network/vpc | 0.0.1 |
 
 ## Resources
 
@@ -31,9 +34,13 @@
 
 ## Inputs
 
-No inputs.
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| <a name="input_ssh_public_key"></a> [ssh\_public\_key](#input\_ssh\_public\_key) | (Required) The public key material | `string` | n/a | yes |
 
 ## Outputs
 
-No outputs.
+| Name | Description |
+|------|-------------|
+| <a name="output_endpoint_url"></a> [endpoint\_url](#output\_endpoint\_url) | Cloudfront Endpoint to access the application. |
 <!-- END_TF_DOCS -->

@@ -1,7 +1,7 @@
 resource "aws_lb" "orderful" {
   name               = "${var.prefix}-lb-test-app"
-  internal           = var.lb_internal
-  load_balancer_type = var.lb_type
+  internal           = var.load_balancer_internal
+  load_balancer_type = var.load_balancer_type
   security_groups    = [aws_security_group.allow-http.id]
   subnets            = var.public_subnet_ids
 }
