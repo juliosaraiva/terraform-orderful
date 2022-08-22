@@ -1,4 +1,4 @@
-resource "aws_autoscaling_group" "cluster" {
+resource "aws_autoscaling_group" "orderful" {
   name                      = "${var.prefix}-ecs-cluster"
   min_size                  = 2
   max_size                  = 4
@@ -9,7 +9,7 @@ resource "aws_autoscaling_group" "cluster" {
   target_group_arns         = [aws_lb_target_group.orderful.arn]
 
   launch_template {
-    id      = var.launch_template_id
+    id      = aws_launch_template.ecs_instance_template.id
     version = "$Latest"
   }
 

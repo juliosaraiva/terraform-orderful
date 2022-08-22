@@ -13,5 +13,10 @@ output "lb_target_group_arn" {
 }
 
 output "autoscaling_arn" {
-  value = aws_autoscaling_group.cluster.arn
+  value = aws_autoscaling_group.orderful.arn
+}
+
+output "cloudfront_endpoint_url" {
+  description = "Cloudfront Endpoint URL"
+  value       = aws_cloudfront_distribution.orderful.domain_name
 }

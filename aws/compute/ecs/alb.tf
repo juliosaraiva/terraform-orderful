@@ -1,8 +1,8 @@
 resource "aws_lb" "orderful" {
-  name               = "orderful-alb-app"
+  name               = "${var.prefix}-lb-test-app"
   internal           = var.lb_internal
   load_balancer_type = var.lb_type
-  security_groups    = [var.security_group_id]
+  security_groups    = [aws_security_group.allow-http.id]
   subnets            = var.public_subnet_ids
 }
 
@@ -12,8 +12,30 @@ resource "aws_lb_listener" "orderful" {
   protocol          = "HTTP"
 
   default_action {
+    type = "fixed-response"
+
+    fixed_response {
+      content_type = "text/html"
+      status_code  = "403"
+      message_body = "<h1>Access Denied</h1>"
+    }
+  }
+}
+
+resource "aws_lb_listener_rule" "orderful-listener-rule" {
+  listener_arn = aws_lb_listener.orderful.arn
+  priority     = 1
+
+  action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.orderful.arn
+  }
+
+  condition {
+    http_header {
+      http_header_name = "X-Orderful-Origin"
+      values           = ["68e109f0f40ca72a15e05cc22786f8e6"]
+    }
   }
 }
 

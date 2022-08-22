@@ -1,5 +1,5 @@
 resource "aws_ecs_cluster" "orderful" {
-  name = "${var.prefix}-cluster"
+  name = local.cluster_name
 
   setting {
     name  = "containerInsights"

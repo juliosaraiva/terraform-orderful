@@ -19,7 +19,7 @@ resource "aws_security_group" "allow-http" {
 }
 
 
-resource "aws_security_group" "allow-ecs" {
+resource "aws_security_group" "ecs-service" {
   description = "Access for the ECS Service"
   name        = "Allow Connections to ECS"
   vpc_id      = var.vpc_id
