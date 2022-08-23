@@ -1,7 +1,35 @@
 # AWS Orderful ECS Project
 
-# Architecture
+## Architecture
 ![alt AWS ECS Architecture](./images/IT%20services.svg)
+
+## Configuring
+
+### How to run this module
+
+#### Using Terraform Cloud
+In order to run this module using shared state, you must configure terraform cloud.
+
+1. [Create a terraform cloud account](https://learn.hashicorp.com/tutorials/terraform/cloud-sign-up#create-an-account)
+2. [Create an Organization](https://learn.hashicorp.com/tutorials/terraform/cloud-sign-up#create-an-organization)
+3. [Create the workspace](https://learn.hashicorp.com/tutorials/terraform/cloud-workspace-create?in=terraform/cloud-get-started#create-the-workspace)
+4. [Assign variables to the Workspace](https://learn.hashicorp.com/tutorials/terraform/cloud-workspace-create?in=terraform/cloud-get-started#assign-variable-set-to-workspace)
+
+> Check the [Inputs](#inputs) section what variables are required to configure for this project and add it into your workspace.
+
+Running terraform apply
+
+```
+export TF_CLOUD_ORGANIZATION=YOUR_ORGANIZATION_HERE
+export TF_WORKSPACE=YOUR_WORKSPACE_HERE
+terraform apply -var-file="sample.tfvars"
+```
+
+#### Using local state
+Remove the line `2` from `terraform.tf` in order to create a `terraform.tfstate` file locally, then run `terraform init`. Run the following command to create terraform resources.
+```
+terraform apply -var-file="sample.tfvars"
+```
 
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
