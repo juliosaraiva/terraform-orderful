@@ -8,10 +8,14 @@ on:
       - main
   workflow_dispatch:
     inputs:
-      cmd:
+      terraform:
         description: Terraform command
-        default: destroy
+        default: "destroy"
         required: true
+        type: choice
+        options:
+          - apply
+          - destroy
 
 env:
   TERRAFORM_VERSION: 1.2.7
@@ -75,7 +79,7 @@ jobs:
                body: output
              })
   terraform_deploy:
-    if: github.event_name == 'workflow_dispatch' && github.event.inputs.cmd == 'apply'
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.terraform == 'apply'
     needs: terraform_check
     name: Terraform Apply
     runs-on: ubuntu-latest
@@ -118,7 +122,7 @@ jobs:
                 body: output
               })
   terraform_destroy:
-    if: github.event_name == 'workflow_dispatch' && github.event.inputs.cmd == 'destroy'
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.terraform == 'destroy'
     needs: terraform_deploy
     name: Terraform Destroy
     runs-on: ubuntu-latest
