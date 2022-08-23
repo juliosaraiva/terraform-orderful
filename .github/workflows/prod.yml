@@ -2,6 +2,8 @@ name: CI - Production
 
 on:
   pull_request:
+    types:
+      - synchronize
     branches:
       - main
   workflow_dispatch:
@@ -117,7 +119,7 @@ jobs:
               })
   terraform_destroy:
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.cmd == 'destroy'
-    needs: terraform_check
+    needs: terraform_deploy
     name: Terraform Destroy
     runs-on: ubuntu-latest
     timeout-minutes: 30

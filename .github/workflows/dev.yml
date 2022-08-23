@@ -2,6 +2,8 @@ name: CI - Development
 
 on:
   pull_request:
+    types:
+      - synchronize
     branches:
       - dev
   workflow_dispatch:
@@ -22,7 +24,6 @@ jobs:
     name: Check for development
     runs-on: ubuntu-latest
     timeout-minutes: 10
-
     environment:
       name: development
     steps:
