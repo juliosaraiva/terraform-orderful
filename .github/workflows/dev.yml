@@ -6,12 +6,6 @@ on:
       - synchronize
     branches:
       - dev
-  workflow_dispatch:
-    inputs:
-      cmd:
-        description: Terraform command
-        default: destroy
-        required: true
 
 env:
   TERRAFORM_VERSION: 1.2.7
